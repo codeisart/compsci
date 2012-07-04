@@ -1,0 +1,10 @@
+bubble2_opt
+    0.15 real         0.13 user         0.00 sys
+bubble2_debug
+	2.84 real         2.81 user         0.01 sys
+
+bubble_opt
+   0.19 real         0.17 user         0.00 sys
+
+bubble_debug
+   4.78 real         4.75 user         0.01 sys
