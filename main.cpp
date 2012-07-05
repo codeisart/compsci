@@ -188,79 +188,60 @@ private:
 	}
 
 
-	Node* findSmallestParent(Node* i)
+	Node* findMin(Node* i)
 	{	
-		Node* prev = 0;
-		Node* prevPrev = 0;
-		while(i) 
-		{
-			prevPrev = prev;
-			prev = i;
-			i = i->left;
-		}
+		if(!i)
+			return 0;
+
+		Node* child = findMin(i->left);
+		if(!child)
+			return i;
+		else 
+			return child;				
 	}
 
 	Node* recursiveRemove(Node* node, int val)
 	{
 		if(!node)
 			return 0;
+		
 		if(val < node->data)
+		{
 			node->left = recursiveRemove(node->left,val);
+			return node;
+		}
 		else if(val > node->data)
+		{
 			node->right = recursiveRemove(node->right,val);
+			return node;
+		}
 		else 
 		{
-			// Found it.
-			Node* result = 0;
-			if(node->left && !node->right)	
-				result = node->left;
-			else if(node->right && !node->left)
-				result = node->right;
-			else
+			// Has two children.
+			if(node->right && node->left)
 			{
-				std::cout << "found not to remove " << node << " with value " << node->data << std::endl;
-
 				// traverse right hand side and find smallest item. (most left)
-				Node* smallParent = findSmallestParent(node->right); 
+				Node* small = findMin(node->right); 
 
-				std::cout << "found smallest left hand node " << smallParent << " with val " << 
-					(smallParent ? smallParent->data : -1) << std::endl;
-			
-				// replace this node with the minimum node DATA from right most tree.
-				node->data = smallParent->left->data;						
-
-				// return our modified version as the new item.
-				result = node;
-				
-				// target the copied none for delete.
-				node = smallParent->left;
-				
-				// remove it from it's parent.
-				smallParent->left = 0;
-			}			
-
-			// kill it.	
-			delete node;
-			return result;
+				// Change this node to resemble the smallest node.
+				node->data = small->data;
+				node->right = recursiveRemove(node->right,node->data);
+				return node;
+			}
+			else if(node->left)	
+			{
+				Node* l = node->left;
+				delete node;
+				return l;
+			}
+			else if(node->right)
+			{
+				Node* r = node->right;
+				delete node;
+				return r;
+			}
 		}
 		return 0;		
-	}
-	
-	Node* findInsertPoint(int n)
-	{
-		Node* node = m_root;
-		Node* parent = m_root;
-		while(node)
-		{
-			parent = node;
-			if(n < node->data )		
-				node = node->left;
-			else if(n > node->data)
-				node = node->right;
-			else
-				return 0;
-		}
-		return parent;
 	}
 	
 	void recursiveDelete(Node* n)
@@ -281,7 +262,7 @@ public:
 
 	void remove(int n)
 	{
-		recursiveRemove(m_root,n);
+		m_root=recursiveRemove(m_root,n);
 	}
 	
 	void print()
@@ -320,9 +301,13 @@ int main(int argc, char** argv)
 	cout << " done" << endl;
 	
 	tree.print();
-	//for(vector<int>::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
-	//	tree.remove(*i);	
-	
+	for(vector<int>::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
+	{
+		tree.remove(*i);	
+		std::cout << std::endl;
+		tree.print();
+	}	
+
 	tree.remove(154);
 	std::cout << std::endl;
 	tree.print();
