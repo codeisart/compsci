@@ -9,7 +9,6 @@ inline void swp(T& a, T& b)
 	b = tmp;
 }
 
-
 template<>
 inline void swp(int& a, int& b)
 {
@@ -17,7 +16,6 @@ inline void swp(int& a, int& b)
 	b ^= a;
 	a ^= b;
 }
-
 
 template<typename IT>
 inline void bubble(IT b, IT e)
@@ -57,7 +55,8 @@ inline void bubble2(IT b, IT e)
 	} while(!sorted);
 }
 
-int powerOf2GreaterThanN(int n)
+// log2 where pow(2,n) >= n
+int log2greaterThanN(int n)
 {
 	int p = 0;
 	while((1 << p) < n)
@@ -69,78 +68,266 @@ int powerOf2GreaterThanN(int n)
 template<typename IT>
 void merge_exchange(IT b, IT e)
 {
-	std::cout << "merge_exchange" << std::endl;
 	int n = std::distance(b,e);
-	int t = powerOf2GreaterThanN(n);		// logN
-
-	//std::cout << " N is " << n;
-	//std::cout << " t is " << t;
-	//std::cout << std::endl;
+	int t = log2greaterThanN(n);		// logN
 
 	for(int p = 1 << (t-1); p > 0; p >>=1)
 	{
-		//std::cout << "         . p = " << p << std::endl;
-		
 		int q = 1<<(t-1);
 		int r = 0;
 		int d = p; 
             		
-		do
+		for(;;)
 		{
-			//std::cout << " p is " << p << std::endl;
-			//std::cout << " q is " << q << std::endl;
-			//std::cout << " r is " << r << std::endl;
-			//std::cout << " d is " << d << std::endl;
-			//std::cout << " -=-=-=-=-=-=" << std::endl;
-
-			int i = 0;
-			do
+			for(int i = 0; ; ++i)
 			{
-				//std::cout << "n-d=" << n-d << ", i&p=" << ((i-1)&p) << ", r = " << r << std::endl;	
-				//std::cout << ",";
 				if( b[i] > b[i+d])
-				{
 					swp(b[i], b[i+d]);
-					//std::cout << "swp" << std::endl;
-				}
 				
+				// Condition must be before any change to i AND 
+				// loop must execute at least once.
 				if(i>=n-d || i&p != r)
 					break;
-				
-				i++;
-			}while(1);
+			}
 			
+			// Condition must be before any change to q or q AND
+			// loop must execute at least once.
 			if(q==p)
 				break;
+
 			d = q-p;
 			q >>= 1;
 			r = p;
-		} while(1);
-		 
+		} 
 	}
 }
+
+/*
+template<typename it>
+void radix_sort(it b, it e)
+{
+	int n = std::distance(b,e);
+	
+	// init
+	int l = 1;
+	int r = n;
+	int b = 1;
+	
+	// begin new stage.
+	while(r<=l)
+	{
+		int i = l;
+		int j = r;
+
+		// step 3.
+		for(;;)
+		{
+			if( !a[i]&(1<<b) )	
+			{
+				// step 4.
+				i++;
+				if( i <= j)
+					continue;
+			}
+			else
+			{
+				j--;
+				if( )
+			}
+		}
+
+	}		
+}
+*/
+
+class Tree
+{
+private:
+	struct Node
+	{
+		Node(Node* l=0, Node* r=0, int v=0) : left(l),right(r),data(v) {}
+		Node* left;
+		Node* right;
+		int data;
+	};
+	Node* m_root;
+	
+	void recursivePrint(const Node* node)
+	{
+		//std::cout << " recursive print " << node <<	std::endl;
+
+		if(!node)
+			return;
+
+		if(node->left)
+			recursivePrint(node->left);
+		
+		std::cout << node->data << ",";
+		
+		if(node->right)
+			recursivePrint(node->right);	
+	}
+
+	Node* recursiveInsert(Node* node,int val)
+	{
+		// Null case.
+		if(!node)
+		{
+			Node* newNode = new Node(0,0,val);			
+			//std::cout << "creating new node for " << val << " at location " << newNode << std::endl;
+			return newNode;
+		}
+
+		if(val < node->data)
+			node->left = recursiveInsert(node->left,val);
+		else if(val > node->data)
+			node->right = recursiveInsert(node->right,val);
+
+		// Must be the same.			
+		return node;					
+	}
+
+
+	Node* findSmallestParent(Node* i)
+	{	
+		Node* prev = 0;
+		Node* prevPrev = 0;
+		while(i) 
+		{
+			prevPrev = prev;
+			prev = i;
+			i = i->left;
+		}
+	}
+
+	Node* recursiveRemove(Node* node, int val)
+	{
+		if(!node)
+			return 0;
+		if(val < node->data)
+			node->left = recursiveRemove(node->left,val);
+		else if(val > node->data)
+			node->right = recursiveRemove(node->right,val);
+		else 
+		{
+			// Found it.
+			Node* result = 0;
+			if(node->left && !node->right)	
+				result = node->left;
+			else if(node->right && !node->left)
+				result = node->right;
+			else
+			{
+				std::cout << "found not to remove " << node << " with value " << node->data << std::endl;
+
+				// traverse right hand side and find smallest item. (most left)
+				Node* smallParent = findSmallestParent(node->right); 
+
+				std::cout << "found smallest left hand node " << smallParent << " with val " << 
+					(smallParent ? smallParent->data : -1) << std::endl;
+			
+				// replace this node with the minimum node DATA from right most tree.
+				node->data = smallParent->left->data;						
+
+				// return our modified version as the new item.
+				result = node;
+				
+				// target the copied none for delete.
+				node = smallParent->left;
+				
+				// remove it from it's parent.
+				smallParent->left = 0;
+			}			
+
+			// kill it.	
+			delete node;
+			return result;
+		}
+		return 0;		
+	}
+	
+	Node* findInsertPoint(int n)
+	{
+		Node* node = m_root;
+		Node* parent = m_root;
+		while(node)
+		{
+			parent = node;
+			if(n < node->data )		
+				node = node->left;
+			else if(n > node->data)
+				node = node->right;
+			else
+				return 0;
+		}
+		return parent;
+	}
+	
+	void recursiveDelete(Node* n)
+	{
+		if(!n)
+			return;
+		recursiveDelete(n->left);
+		recursiveDelete(n->right);
+		delete n;
+	}
+
+public:
+	Tree() : m_root(0) {}
+	~Tree() 
+	{
+		recursiveDelete(m_root);
+	}
+
+	void remove(int n)
+	{
+		recursiveRemove(m_root,n);
+	}
+	
+	void print()
+	{
+		recursivePrint(m_root);
+	}
+
+	bool insert(int n)
+	{
+		m_root = recursiveInsert(m_root,n);
+	}		
+};
+
 
 int main(int argc, char** argv)
 {	
 	using namespace std;
 	vector<int> numbers;
+	Tree tree;
+
 	int c;
 	while(std::cin >> c)
 	{
+		tree.insert(c);
 		numbers.push_back(c);
-		std::cout << c << std::endl;
+		//tree.print();
+		//std::cout << c << std::endl;
 	}
 
 	cout << " read " << numbers.size() << endl;
 	cout << " sorting...";
 
-	//bubble2(numbers.begin(),numbers.end());
-	merge_exchange(numbers.begin(),numbers.end());
+	//merge_exchange(numbers.begin(),numbers.end());
+	//radix_sort(numbers.begin(), numbers.end());	
 
 	cout << " done" << endl;
+	
+	tree.print();
+	//for(vector<int>::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
+	//	tree.remove(*i);	
+	
+	tree.remove(154);
+	std::cout << std::endl;
+	tree.print();
 
-	for(vector<int>::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
-		cout << *i << endl;
+	//cout << *i << endl;
 
 	return 0;
 }
