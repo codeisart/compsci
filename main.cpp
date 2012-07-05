@@ -102,45 +102,6 @@ void merge_exchange(IT b, IT e)
 	}
 }
 
-/*
-template<typename it>
-void radix_sort(it b, it e)
-{
-	int n = std::distance(b,e);
-	
-	// init
-	int l = 1;
-	int r = n;
-	int b = 1;
-	
-	// begin new stage.
-	while(r<=l)
-	{
-		int i = l;
-		int j = r;
-
-		// step 3.
-		for(;;)
-		{
-			if( !a[i]&(1<<b) )	
-			{
-				// step 4.
-				i++;
-				if( i <= j)
-					continue;
-			}
-			else
-			{
-				j--;
-				if( )
-			}
-		}
-
-	}		
-}
-*/
-
-
 template<typename T>
 class Tree
 {
@@ -156,8 +117,6 @@ private:
 	
 	void recursivePrint(const Node* node)
 	{
-		//std::cout << " recursive print " << node <<	std::endl;
-
 		if(!node)
 			return;
 
@@ -174,11 +133,7 @@ private:
 	{
 		// Null case.
 		if(!node)
-		{
-			Node* newNode = new Node(0,0,val);			
-			//std::cout << "creating new node for " << val << " at location " << newNode << std::endl;
-			return newNode;
-		}
+			return new Node(0,0,val);			
 
 		if(val < node->data)
 			node->left = recursiveInsert(node->left,val);
@@ -277,10 +232,6 @@ public:
 		m_root = recursiveInsert(m_root,n);
 	}		
 };
-
-
-
-
 
 int main(int argc, char** argv)
 {	
