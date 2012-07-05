@@ -140,15 +140,17 @@ void radix_sort(it b, it e)
 }
 */
 
+
+template<typename T>
 class Tree
 {
 private:
 	struct Node
 	{
-		Node(Node* l=0, Node* r=0, int v=0) : left(l),right(r),data(v) {}
+		Node(Node* l=0, Node* r=0, T v=0) : left(l),right(r),data(v) {}
 		Node* left;
 		Node* right;
-		int data;
+		T data;
 	};
 	Node* m_root;
 	
@@ -168,7 +170,7 @@ private:
 			recursivePrint(node->right);	
 	}
 
-	Node* recursiveInsert(Node* node,int val)
+	Node* recursiveInsert(Node* node,T val)
 	{
 		// Null case.
 		if(!node)
@@ -200,7 +202,7 @@ private:
 			return child;				
 	}
 
-	Node* recursiveRemove(Node* node, int val)
+	Node* recursiveRemove(Node* node, T val)
 	{
 		if(!node)
 			return 0;
@@ -260,7 +262,7 @@ public:
 		recursiveDelete(m_root);
 	}
 
-	void remove(int n)
+	void remove(T n)
 	{
 		m_root=recursiveRemove(m_root,n);
 	}
@@ -270,23 +272,27 @@ public:
 		recursivePrint(m_root);
 	}
 
-	bool insert(int n)
+	bool insert(T n)
 	{
 		m_root = recursiveInsert(m_root,n);
 	}		
 };
 
 
+
+
+
 int main(int argc, char** argv)
 {	
 	using namespace std;
 	vector<int> numbers;
-	Tree tree;
+	Tree<float> tree;
 
 	int c;
 	while(std::cin >> c)
 	{
-		tree.insert(c);
+		if(c > 0)
+			tree.insert((float)1.f / c);
 		numbers.push_back(c);
 		//tree.print();
 		//std::cout << c << std::endl;
@@ -301,9 +307,11 @@ int main(int argc, char** argv)
 	cout << " done" << endl;
 	
 	tree.print();
-	for(vector<int>::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
+	for(vector<int>::const_reverse_iterator i = numbers.rbegin(); i!= numbers.rend(); ++i)
 	{
-		tree.remove(*i);	
+		if( *i > 0 )
+			tree.remove((float)1.f / *i);
+	
 		std::cout << std::endl;
 		tree.print();
 	}	
