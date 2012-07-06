@@ -233,20 +233,124 @@ public:
 	}		
 };
 
+template<typename T>
+class Tree2
+{
+	struct Node
+	{
+		Node(const T& d,Node* l=0,Node* r=0,Node* p=0) : data(d),left(l),right(r),parent(p) {}
+		T data;
+		Node* left;
+		Node* right;
+		Node* parent;
+	};
+
+	Node* m_root;
+
+	Node* minNode(Node* i)
+	{
+		while(i && i->left)
+			i = i->left;
+		return i;
+	}
+	Node* maxNode(Node* i)
+	{
+		while(i && i->right)
+			i = i->right;
+		return i;
+	}
+	Node* nextNode(Node* i)
+	{
+		if(i->right)
+		{
+			i = i->right;
+			while(i->left)
+				i = i->left;
+		}
+		else
+		{
+			// go up until we hit either a null or something we haven't decended.
+			Node* parent = i->parent;
+			while(parent && parent->right == i)
+			{
+				i = parent;
+				parent = parent->parent;
+			}
+			if(!parent)
+				i = i->right;
+			else if(parent->right != i)
+				i = parent;
+		}
+		return i;	
+	}
+
+public:
+
+	Tree2()
+		:m_root(0) 
+	{}
+
+	void insert(const T& v)
+	{
+		if(!m_root)
+		{
+			m_root = new Node(v);
+			//m_root->parent = m_root;	// special case.
+			return;
+		}
+
+		Node* i = m_root;
+		while(i)
+		{
+			if(v < i->data)				
+			{
+				if(!i->left)
+					i->left = new Node(v,0,0,i);
+				i = i->left;
+			}
+			else if(v > i->data)
+			{	    
+				if(!i->right)
+					i->right = new Node(v,0,0,i);
+				i = i->right;
+			}
+			else
+				return;					
+		}
+	}
+
+
+	void print()
+	{
+		// Find smallest and start from there.
+		Node* i = minNode(m_root);
+		Node* end = maxNode(m_root);
+	
+		for( ; i != end; i = nextNode(i))
+			std::cout << i->data << ",";
+	}
+	
+	void remove(const T& v)
+	{
+		//Node* i = m_root;
+		//while(i)
+		//{
+		//	
+		//}
+	}
+};
+
 int main(int argc, char** argv)
 {	
 	using namespace std;
 	vector<int> numbers;
-	Tree<float> tree;
+	Tree2<float> tree;
 
 	int c;
 	while(std::cin >> c)
 	{
-		if(c > 0)
-			tree.insert((float)1.f / c);
+		tree.insert(c);
 		numbers.push_back(c);
-		//tree.print();
-		//std::cout << c << std::endl;
 	}
 
 	cout << " read " << numbers.size() << endl;
@@ -260,18 +364,11 @@ int main(int argc, char** argv)
 	tree.print();
 	for(vector<int>::const_reverse_iterator i = numbers.rbegin(); i!= numbers.rend(); ++i)
 	{
-		if( *i > 0 )
-			tree.remove((float)1.f / *i);
-	
+		tree.remove(*i);
 		std::cout << std::endl;
 		tree.print();
 	}	
 
-	tree.remove(154);
 	std::cout << std::endl;
-	tree.print();
-
-	//cout << *i << endl;
-
 	return 0;
 }
