@@ -283,7 +283,38 @@ class Tree2
 		}
 		return i;	
 	}
+	
+	Node* findNode(const T& v)
+	{
+		Node* i = m_root;
+		while(i)
+		{
+			if(v < i->data)
+				i= i->left;
+			else if(v > i->data)
+				i=i->right;
+			else
+				return i;
+		}
+		return 0;
+	}
+	void deleteNode(Node* n)
+	{
+		if(n->left)
+			n->left->parent = n->parent;
+		else if (n->right)
+			n->right->parent = n->parent;
 
+		if(Node* parent = n->parent)
+		{
+			if(parent->left == n)
+				parent->left = n->left;
+			else
+				parent->right = n->right;			
+		}
+		delete n;
+	}
+	
 public:
 
 	Tree2()
@@ -295,7 +326,6 @@ public:
 		if(!m_root)
 		{
 			m_root = new Node(v);
-			//m_root->parent = m_root;	// special case.
 			return;
 		}
 
@@ -319,7 +349,6 @@ public:
 		}
 	}
 
-
 	void print()
 	{
 		// Find smallest and start from there.
@@ -331,18 +360,53 @@ public:
 	}
 	
 	void remove(const T& v)
-	{
-		//Node* i = m_root;
-		//while(i)
-		//{
-		//	
-		//}
+	{		
+		Node* toRemove = findNode(v);
+		//std::cout << " removing " << v << std::endl;
+	
+		if(toRemove->left && toRemove->right)
+		{
+			//std::cout << " node has two children " << toRemove->left->data << " and " << toRemove->right->data << std::endl;
+			Node* minRight = minNode(toRemove->right);
+			toRemove->data = minRight->data;
+			deleteNode(minRight);
+		}
+		else if(toRemove->left)
+		{
+			//std::cout << " node has 1 child " << toRemove->left->data <<  std::endl;
+			deleteNode(toRemove);
+		}
+		else if(toRemove->right)
+		{
+			//std::cout << " node has 1 child " << toRemove->right->data << std::endl;
+			deleteNode(toRemove);
+		}
+		else
+		{
+			//std::cout << " node has no children" << std::cout;
+			deleteNode(toRemove);
+		}
 	}
 };
 
 int main(int argc, char** argv)
 {	
 	using namespace std;
+#if 1 
+	// String version.
+	Tree2<string> tree;
+	string s;
+	while(std::cin >> s)
+	{
+		tree.insert(s);
+	}
+	tree.print();	
+	tree.remove("Alice");
+	tree.remove("cat");
+	tree.print();
+
+#else
+
 	vector<int> numbers;
 	Tree2<float> tree;
 
@@ -370,5 +434,9 @@ int main(int argc, char** argv)
 	}	
 
 	std::cout << std::endl;
+
+#endif
+
+
 	return 0;
 }
