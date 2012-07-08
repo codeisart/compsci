@@ -389,6 +389,51 @@ public:
 	}
 };
 
+class HashTable
+{
+public:
+	typedef unsigned int Key;
+	typedef const char* Value;
+	typedef std::pair<Key,Value> Kvp;
+	
+	HashTable(int tableSize = 251)	// Biggest prime < 256
+	{
+		m_hashSpace.resize(tableSize);
+	}
+	bool add(Value v)
+	{
+		Key key = generateKey(v);
+		int index = key % m_hashSpace.size();
+		Kvp kvp(key,v);
+		const int maxAttempts = m_hashSpace.size();
+		
+		for(int i = 0; i < maxAttempts && m_hashSpace[index].first!=0 && m_hashSpace[index].first != key; i++)
+			index = (index+1) % m_hashSpace.size();
+		
+		if(m_hashSpace[index].first == 0 || m_hashSpace[index].first == key)
+		{
+			m_hashSpace[index] = kvp;
+			return true;		
+		}	
+		return false;	
+	}	
+
+private:
+	Key generateKey(const char* v)	// string hash.
+	{
+		Key hash = 2166136261U;			// offset.
+		const Key fnvPrime = 16777619;	// fnv prime
+		while(Key c = *v++)				// assume string for now.	
+		{
+			hash ^= c;
+			hash *= fnvPrime;
+		}
+		return hash;
+	}
+	std::vector<Kvp> m_hashSpace;
+};
+
+
 int main(int argc, char** argv)
 {	
 	using namespace std;
