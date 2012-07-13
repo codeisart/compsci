@@ -6,71 +6,12 @@ class LinkList
 private:
 	struct Node
 	{
-		Node(T& v, Node* n=0, Node* p=0) : data(v),next(n),prev(p) {}
+		Node(T& v, Node* n=0) : data(v),next(n) {}
 		T data;
 		Node* next;
-		Node* prev;
 	};
 
 	Node* m_head;
-	Node* m_tail;
-
-	Node* insertToRightOf(Node* n,Node* newNode)
-	{
-		if(!n)
-			return newNode;		
-
-		// Insert new node.
-		newNode->next = n->next;
-		newNode->prev = n;
-
-		// PREV pointer for forward neighbour
-		if(n->next)
-			n->next->prev = n;		
-
-		// finally NEXT pointer of current.
-		n->next = newNode;
-
-		// Return new pointer.
-		return newNode;
-	}
-
-	Node* insertToLeftOf(Node* n, Node* newNode)
-	{
-		if(!n)
-			return newNode;		
-
-		// Insert new node.
-		newNode->next = n;
-		newNode->prev = n->prev;
-
-		// NEXT pointer for backwards neighbour
-		if(n->prev)
-			n->prev->next = n;		
-
-		// finally PREVOUS pointer of current.
-		n->prev = newNode;
-
-		// Return new pointer.
-		return newNode;
-	}
-
-	Node* removeNode(Node* n)
-	{
-		if(!n)
-			return 0;
-	
-		if(n->prev)
-			n->prev->next = n->next;
-		if(n->next)
-			n->next->prev = n->prev;
-		
-		Node* next = n;
-		n->next = 0;
-		n->prev = 0;
-		
-		return next;
-	}
 
 	void deleteAll()
 	{
@@ -94,7 +35,7 @@ public:
 		}
 	}
 
-	LinkList() : m_head(0),m_tail(0) {}
+	LinkList() : m_head(0) {}
 	~LinkList()
 	{
 		deleteAll();
@@ -114,22 +55,56 @@ public:
 	
 	void push_back(T& v)
 	{
-		m_tail = insertToRightOf(m_tail,new Node(v));	
-		if(!m_head)
-			m_head = m_tail;
+		// Find back.
+		Node* i = m_head;
+		Node* trail = 0;
+		while(i)
+		{
+			trail = i;
+			i = i->next;
+		}
+		
+		// Insert at the back.
+		Node* node = new Node(v,0);
+		if(trail)
+			trail->next = node;
+		else
+			m_head = node;
+
 	}
 
 	void push_front(T& v)
 	{
-		m_head = insertToLeftOf(m_head,new Node(v));	
-		if(!m_tail)
-			m_tail = m_head;
+		m_head = new Node(v,m_head);	
 	}
 
+	Node* recursive_reverse(Node* n)
+	{
+		if(!n)
+			return 0;
+		if(!n->next)
+			return n;
+
+		Node* list = recursive_reverse(n->next);
+		Node* i = list;
+		while(i->next)
+			i=i->next;			
+
+		i->next = n;
+		n->next = 0;
+
+		return list;
+	}
+
+	void reverse()
+	{
+		m_head = recursive_reverse(m_head);
+	}
 
 	void merge(const LinkList& c)
 	{
-		using namespace std;
+	/*	
+	using namespace std;
 		cerr << "merging..." << endl;
 
 		Node* insertPoint = m_head;
@@ -160,7 +135,8 @@ public:
 				else
 					j = j->next;
 			}
-		}		
+		}	
+*/	
 	}
 
 	void sort()
@@ -187,17 +163,6 @@ public:
 			}
 		}
 		m_head = sorted;
-
-		// Correct back pointers.
-		i = m_head;
-		Node* prev = 0;
-		while(i)
-		{
-			i->prev = prev;
-			prev = i;
-			i = i->next;
-		}
-		m_tail = prev;
 	}
 
 	void print()
@@ -214,20 +179,20 @@ public:
 
 int main(int argc, char** argv)
 {
-	LinkList<int> list;
-	LinkList<int> list2;
+	using namespace std;
+
+	LinkList<int> list1;
 
 	int c;
 	while(std::cin >> c)
-		list.push_back(c);
+		list1.push_back(c);
 
-	list.print();
+	cout << "what we just read list1" << endl;
+	list1.print();
 
-	list2 = list;
-	list.sort();
-	list2.sort();
-	list.merge(list2);
-	list.print();
+	cout << "reversed list1" << endl;
+	list1.reverse();
+	list1.print();
 
 	return 0;
 }
