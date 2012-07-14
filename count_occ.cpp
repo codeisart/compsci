@@ -33,7 +33,7 @@ ITERATOR find_binary(ITERATOR begin, ITERATOR end, const T& v)
 		
 	while(left < right)
 	{
-		int mid = (left+right) / 2;
+		int mid = left + ((right-left) / 2);
 		const T& midval = begin[mid];
 
 		if(midval == v)

@@ -16,7 +16,7 @@ float my_sqrt(float v)
 	float mid = 0.0f;
 	while(right-left > max_precision)
 	{
-		mid = (left+right) / 2.f;
+		mid = left + ((right-left) / 2.f);
 		float sqr = mid*mid;
 
 		//std::cerr << "mid = " << mid << std::endl;
