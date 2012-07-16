@@ -103,41 +103,36 @@ public:
 
 	void merge(const LinkList& c)
 	{
-	/*	
-	using namespace std;
-		cerr << "merging..." << endl;
+		Node* newHead = 0;
+		Node* j = m_head;
+		Node* trail = 0;
 
-		Node* insertPoint = m_head;
-		for(Node* i = c.m_head; i; i = i->next)
-		{
-			Node* j = m_head;
+		// Run through each item in incoming list.
+		for(const Node* i = c.m_head; i; i=i->next)
+		{			
+			// Insert from where we left off as we're sorted.
 			while(j)
 			{
-				if(j->data < i->data)
+				// Insert the incoming item in the list.
+				if(i->data < j->data)
 				{
-					cerr << "inserting" << i->data << endl;
+					Node* newNode = new Node(i->data, j);
+					if(trail)
+						trail->next = newNode;
+					else 
+						newHead = newNode;
 
-					// Insert new to left of J
-					Node* node = new Node(i->data,j,j->prev);
-					
-					// If the current item is the first item in the list we must update the head.
-					if(!j->prev)
-						m_head = node;
-					else
-						j->prev->next = node; // Point previous node at the new one.
-
-					// Point current node's previous at our new node.
-					j->prev = node;
-
-					// Now our new position is the newly inserted node.					
-					j = node;					
+					j = newNode;
 				}
 				else
-					j = j->next;
-			}
-		}	
-*/	
+					j = j->next;	
+								
+				trail = j;
+			}	
+		}
+		m_head = newHead;		
 	}
+
 
 	void sort()
 	{
@@ -182,6 +177,7 @@ int main(int argc, char** argv)
 	using namespace std;
 
 	LinkList<int> list1;
+	LinkList<int> list2;
 
 	int c;
 	while(std::cin >> c)
@@ -189,6 +185,19 @@ int main(int argc, char** argv)
 
 	cout << "what we just read list1" << endl;
 	list1.print();
+	
+	cout << "after sorting" << endl;
+	list1.sort();	
+	list1.print();
+
+	cout << "copy of called list2" << endl;
+	list2 = list1;
+	list2.print();
+
+	cout << "merge of list1 and list2" << endl;
+	LinkList<int> list3 = list1;
+	list3.merge(list2);
+	list3.print();
 
 	cout << "reversed list1" << endl;
 	list1.reverse();
