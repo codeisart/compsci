@@ -6,7 +6,7 @@ class LinkList
 private:
 	struct Node
 	{
-		Node(T& v, Node* n=0) : data(v),next(n) {}
+		Node(const T& v, Node* n=0) : data(v),next(n) {}
 		T data;
 		Node* next;
 	};
@@ -22,10 +22,12 @@ private:
 			delete i;
 			i = next;
 		}
+		m_head = 0;
 	}
 
 public:
 	LinkList(const LinkList& c)
+		: m_head(0)
 	{
 		Node* i = c.m_head;
 		while(i)
@@ -57,20 +59,15 @@ public:
 	{
 		// Find back.
 		Node* i = m_head;
-		Node* trail = 0;
+		Node** trail = &m_head;
 		while(i)
 		{
-			trail = i;
+			trail = &i->next;
 			i = i->next;
 		}
 		
 		// Insert at the back.
-		Node* node = new Node(v,0);
-		if(trail)
-			trail->next = node;
-		else
-			m_head = node;
-
+		*trail = new Node(v,0);
 	}
 
 	void push_front(T& v)
@@ -103,34 +100,40 @@ public:
 
 	void merge(const LinkList& c)
 	{
+		Node* us = m_head;
+		Node* them = c.m_head;
 		Node* newHead = 0;
-		Node* j = m_head;
-		Node* trail = 0;
+		Node** trail = &newHead;
 
-		// Run through each item in incoming list.
-		for(const Node* i = c.m_head; i; i=i->next)
-		{			
-			// Insert from where we left off as we're sorted.
-			while(j)
+		while(us && them)
+		{
+			if(us->data < them->data)
 			{
-				// Insert the incoming item in the list.
-				if(i->data < j->data)
-				{
-					Node* newNode = new Node(i->data, j);
-					if(trail)
-						trail->next = newNode;
-					else 
-						newHead = newNode;
-
-					j = newNode;
-				}
-				else
-					j = j->next;	
-								
-				trail = j;
-			}	
+				*trail = us;
+				trail = &us->next;
+				us = us->next;
+			}
+			else
+			{
+				*trail = new Node(them->data);
+				trail = &(*trail)->next;				
+				them = them->next;
+			}
 		}
-		m_head = newHead;		
+		while(us)
+		{
+			*trail = us;
+			trail = &us->next;
+			us = us->next;
+		}
+		while(them)
+		{
+				*trail = new Node(them->data);
+				trail = &(*trail)->next;				
+				them = them->next;
+		}
+		*trail = 0;
+		m_head = newHead;
 	}
 
 
@@ -199,9 +202,9 @@ int main(int argc, char** argv)
 	list3.merge(list2);
 	list3.print();
 
-	cout << "reversed list1" << endl;
-	list1.reverse();
-	list1.print();
+	//cout << "reversed list1" << endl;
+	//list1.reverse();
+	//list1.print();
 
 	return 0;
 }
