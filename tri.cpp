@@ -50,6 +50,22 @@ public:
 			node = n;
 		}
 	}
+	string nextWord(Node* t, const const string& prefix)
+	{
+		string w;
+		if(!t)
+			return;
+
+		// traversing down to lowest node. first word.
+		if( t-.)
+		
+		
+		nextNode(child,prefix+t->data);
+
+		
+		// Visit all children in ORDER.
+		Node::ChildCon::const_iterator i = t->children.begin(); i
+	}
 };
 
 int main(int argc, char** argv)

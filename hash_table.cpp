@@ -12,11 +12,23 @@ private:
 	typedef std::pair<Hash,Value> Kvp;
 	typedef std::vector<Kvp> HashContainer;
 
+	Hash generateHash(int x)
+	{
+		// easy for now.
+		Hash hash = 2166136261U;		// offset.
+		const Hash fnvPrime = 16777619;	// fnv prime
+		Hash c = (Hash) x;	
+		
+		hash ^= c;
+		hash *= fnvPrime;
+		return hash;
+	}
+
 	Hash generateHash(const char* v)	// string hash.
 	{
 		Hash hash = 2166136261U;		// offset.
 		const Hash fnvPrime = 16777619;	// fnv prime
-		while(Hash c = *v++)				// assume string for now.	
+		while(Hash c = *v++)			// assume string for now.	
 		{
 			hash ^= c;
 			hash *= fnvPrime;
@@ -31,10 +43,11 @@ public:
 	{
 		m_hashSpace.resize(tableSize);
 	}
-	bool add(Key k,Value v)
+	Value* insert(Key k)
 	{
 		Hash hash = generateHash(k);
 		int index = hash % m_hashSpace.size();
+		Value v = 0;							// assuming this is ok.;
 
 		Kvp kvp(hash,v);
 		const int maxAttempts = m_hashSpace.size();
@@ -45,10 +58,35 @@ public:
 		if(m_hashSpace[index].first == 0 || m_hashSpace[index].first == hash)
 		{
 			m_hashSpace[index] = kvp;
-			return true;		
+			return &m_hashSpace[index].second;		
 		}	
-		return false;	
+		return 0;	
 	}	
+	Value* find(Key k) 
+	{
+		Hash hash = generateHash(k);
+		int index = hash % m_hashSpace.size();
+		
+		const int maxAttempts = m_hashSpace.size();
+		
+		for(int i = 0; i < maxAttempts && m_hashSpace[index].first!=0 && m_hashSpace[index].first != hash; i++)
+			index = (index+1) % m_hashSpace.size();
+		
+		if(m_hashSpace[index].first == hash)
+			return &m_hashSpace[index].second;
+
+		// fail.
+		return 0;
+	}
+	
+	Value& operator[](Key k)
+	{
+		if(Value* v= find(k))
+			return *v;
+
+		return *insert(k);		// This is bad if this fails.
+	}
+
 	void print()
 	{	
 		using namespace std;	
@@ -67,18 +105,23 @@ public:
 	}
 };
 
-
+/*
 int main(int argc, char** argv)
 {	
 	using namespace std;
 
-	HashTable<> table;
-	table.add("fire",5);
-	table.add("walk",9);
-	table.add("with",2);
-	table.add("me",6);
+	HashTable<int,int> table;
+
+	int i;
+	while(cin >> i)
+		table[i]++;
+
+	//table.add("walk",9);
+	//table.add("with",2);
+	//table.add("me",6);
 	table.print();
 	
 
 	return 0;
 }
+*/

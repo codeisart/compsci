@@ -5,7 +5,7 @@
 a.out
 *.exe
 *.exe.*
-
+*.swp
 
 # Compiled Dynamic libraries
 *.so
