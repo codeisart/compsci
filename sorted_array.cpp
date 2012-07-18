@@ -4,31 +4,53 @@
 
 typedef std::vector<int> VecInt;
 
-
-void mergeSortedInToLarger(VecInt& large, const VecInt& small, int largeUsed)
+template<typename ITERATOR>
+void insertion_sort(ITERATOR start, ITERATOR end)
 {
-	int largeIndex = 0;
-	int smallIndex = 0;
-
-	while(largeIndex < largeUsed && 
-		  smallIndex < small.size())
-	{
-		int s = small[smallIndex];
-		int l = large[largeIndex];
-		if(s < l)
+	int count = std::distance(start,end);
+	for(int j = 1; j < count; ++j)
+	{		
+		int item = start[j];
+		int hole = j;
+		while(hole > 0 && start[hole-1] > item)
 		{
-			for(int i = largeUsed; i!= largeIndex; i--)
-				large[i] = large[i-1];		
+			start[hole] = start[hole-1];
+			hole--;
+		}
+		start[hole] = item;
+	}
+}
 
-			large[largeIndex++] = small[smallIndex++];
+
+template<typename ITERATOR>
+void print(ITERATOR start, ITERATOR end)
+{
+	for( ; start != end; start++)
+		std::cout << *start << " ";
+	std::cout << std::endl;
+}
+
+template<typename ITERATOR>
+int mergeSortedInToLarger(ITERATOR dst, ITERATOR dstEnd, ITERATOR src, ITERATOR srcEnd, int dstUsed)
+{
+	ITERATOR dstUsedEnd = dst+dstUsed;
+	while(dst != dstUsedEnd && src != srcEnd)
+	{
+		if(*src > *dst)
+		{
+			for(ITERATOR i = dstUsedEnd; i!= dst; i--)
+				*dst = *(dst-1);
+
+			*dst++ = *src++;
 		}
 		else
-			largeIndex++;			
+			src++;			
 	}
 
-	std::cout << "index = " << largeIndex << std::endl;
-	while(smallIndex < small.size())
-		large[largeIndex++] = small[smallIndex++];
+	while(src != srcEnd)
+		*dst++ = *src++;
+
+	return dstUsed;
 }
 
 /*
@@ -91,39 +113,39 @@ int main(int argc, char** argv)
 	using namespace std;	
 	vector<int> numbers;
 
-	//int c;
-	//while(cin >> c)
-	//	numbers.push_back(c);
-	//sort(numbers.begin(), numbers.end());
+	int c;
+	while(cin >> c)
+		numbers.push_back(c);
+	
+	print(numbers.begin(),numbers.end());
+	insertion_sort(numbers.begin(), numbers.end());
+	print(numbers.begin(),numbers.end());
 
 	vector<int> numbers2 = numbers;	
 	vector<int> results;
 
 	int odd[] = { 1,3,5,7,9,11,13,15,17,19 };
 	int mostley_even[] = {2,4,6,8};
+	int knuth[] = {503, 87, 512,61,908,170,897,275,653,426,154,509,612,677,765,703};
 
-	numbers.insert(numbers2.begin(),odd,odd+sizeof_array(odd));
-	numbers2.insert(numbers2.begin(),mostley_even,mostley_even+sizeof_array(mostley_even));
-	numbers2.resize(numbers.size()*2);
-		
-	for(VecInt::const_iterator i = numbers2.begin(); i!= numbers2.end(); ++i)
-		cout << *i << " ";
+	print(knuth,knuth+sizeof_array(knuth));
+	insertion_sort(knuth,knuth+sizeof_array(knuth));
+	print(knuth,knuth+sizeof_array(knuth));
 
-	cout << endl;
-	mergeSortedInToLarger(numbers2,numbers,numbers.size());
+	int longArray[] = {1,3,5,7,0,0,0,0};	
+	int used = 4;//first 4 values are useful
+	int shortArray[] = {2,4,6};
 
-	for(VecInt::const_iterator i = numbers.begin(); i!= numbers.end(); ++i)
-		cout << *i << " ";
+	print(shortArray,shortArray+sizeof_array(shortArray));	
+	print(longArray,longArray+sizeof_array(longArray));	
+	
+	used = mergeSortedInToLarger(
+		longArray,
+		longArray+sizeof_array(longArray),
+		shortArray,
+		shortArray+sizeof_array(shortArray),
+		used
+	);
 
-	cout << endl;
-	for(VecInt::const_iterator i = numbers2.begin(); i!= numbers2.end(); ++i)
-		cout << *i << " ";
-
-	cout << endl;
-
-	//results.resize(numbers.size()+numbers2.size());
-	//mergeSorted(numbers, numbers2, results);
-	//for(VecInt::const_iterator i = results.begin(); i!= results.end(); ++i)
-	//	cout << *i << " ";
-	//cout << endl;
+	print(longArray,longArray+sizeof_array(longArray));	
 }

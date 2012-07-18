@@ -4,6 +4,8 @@
 *.o
 a.out
 *.exe
+*.exe.*
+
 
 # Compiled Dynamic libraries
 *.so
