@@ -1,13 +1,17 @@
 #include <iostream>
 #include <sstream>
-#include "hash_table.cpp"	// oh for a make file.
+#include <unordered_map> // Cx11
+#include <vector>
+//#include "hash_table.cpp"	// oh for a make file.
 
 using namespace std;
 
 pair<int,int>
 find_pair(int v, int arr[], int n)
 {
-	typedef HashTable<int,int> FreqMap;
+//	typedef HashTable<int,int> FreqMap;
+	typedef unordered_map<int,int> FreqMap;
+
 	FreqMap map;
 	for(int i = 0; i < n; ++i)
 		map[arr[i]]++;
@@ -21,28 +25,26 @@ find_pair(int v, int arr[], int n)
 	return pair<int,int>();
 }
 
-int ctoi(char c)
-{
-	return c-'0';
-}
-
 int main(int argc, char** argv)
 {
-	if(argc<=2)
+	if(argc<=1)
 	{
-		cout << "<numbers-in-a-string> <V>" << endl;
+		cout << "please type the value for V" << endl;
 		return 0;
 	}
-	string str(argv[1]);
-	int v = 0;
-	stringstream(argv[2]) >> v;
+	int v=0;
+	stringstream(argv[1]) >> v;
 
 	vector<int> numbers;
-	for(string::const_iterator i = str.begin(); i!= str.end(); ++i)
-		numbers.push_back(ctoi(*i));
+	int n=0;
+	while(cin >>n)
+		numbers.push_back(n);
 
 	pair<int,int> result = find_pair(v,&numbers[0], numbers.size());
-	cout << "Pair: " << result.first << "," << result.second << endl;
+
+	// Assume the results are non-zero.
+	if(result.first && result.second)
+		cout << "Pair: " << result.first << "," << result.second << endl;
 
 	return 0;
 }
