@@ -1,16 +1,25 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+#include <future>
 
 typedef std::vector<int> Col;
 
 bool isPrime(int n, const Col& primes)
 {
-	for(Col::const_iterator i = primes.begin(); i!= primes.end(); ++i)
-		if(n % *i == 0)
-			return false;		
+	//c++11
+	auto divisor = std::find_if(
+		primes.cbegin(),primes.cend(),[&](int i) 
+			{ return n % i == 0; } 
+	);
 
-	return true;
+	return divisor == primes.cend();
+
+	//for(Col::const_iterator i = primes.begin(); i!= primes.end(); ++i)
+	//	if(n % *i == 0)
+	//		return false;		
+	//return true;
 }
 
 int main(int argc, char** argv)
