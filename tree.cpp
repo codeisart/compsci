@@ -274,6 +274,28 @@ public:
 		for( ; i != end; i = nextNode(i))
 			std::cout << i->data << ",";
 	}
+
+	int maxDepth(Node* n)
+	{
+		if(!n)
+			return 0;
+
+		return 1 + std::max(maxDepth(n->left),maxDepth(n->right));
+	}
+	int minDepth(Node* n)
+	{
+		if(!n)
+			return 0;
+
+		return 1 + std::min(minDepth(n->left),minDepth(n->right));
+	}
+
+
+	bool isBalanaced()
+	{
+		// No 2 nodes differ in depth by more than 1.
+		return maxDepth(m_root)-minDepth(m_root) <=1 ;
+	}
 	
 	void remove(const T& v)
 	{		
@@ -318,6 +340,7 @@ int main(int argc, char** argv)
 		numbers.push_back(c);
 	}
 
+	cout << "isBalanced" << tree.isBalanaced() << endl;
 	cout << " done" << endl;
 	
 	tree.print();
