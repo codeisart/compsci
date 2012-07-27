@@ -174,6 +174,24 @@ public:
 		std::cout << std::endl;
 	}
 
+	bool detectLoop()
+	{
+		Node* f = m_head;
+		Node* s = m_head;
+		while(f && s)
+		{
+			if(!f->next)
+				return false;
+
+			s = s->next;
+			f = f->next->next;
+
+			if(f == s)
+				return true;
+		}
+		return false;	
+	}
+
 	void removeDuplicates()
 	{			
 		// [0,1,2,3,4,4]
@@ -235,6 +253,11 @@ int main(int argc, char** argv)
 	cout << "removing duplicates now" << endl;
 	list3.removeDuplicates();
 	list3.print();
+
+	cout << "detecting loops..." << endl;
+	if(list3.detectLoop())
+		cout << "loop detected!" << endl;
+		
 
 	//cout << "reversed list1" << endl;
 	//list1.reverse();
