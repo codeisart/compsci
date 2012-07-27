@@ -173,6 +173,36 @@ public:
 		}
 		std::cout << std::endl;
 	}
+
+	void removeDuplicates()
+	{			
+		// [0,1,2,3,4,4]
+		// 
+
+		// Outter loop.
+		for(Node* i = m_head; i; i = i->next)
+		{
+			// Inner.
+			Node** j = &i->next; 
+			while(*j) 
+			{
+				// Duplicate?
+				if((*j)->data == i->data)
+				{					
+					// Copy it.
+					Node* tmp = *j;
+					
+					// Delete it from the list.
+					*j = (*j)->next;
+
+					// Delete the node.
+					delete tmp;
+				}
+				else
+					j = &(*j)->next;
+			}
+		}
+	}
 };
 
 int main(int argc, char** argv)
@@ -200,6 +230,10 @@ int main(int argc, char** argv)
 	cout << "merge of list1 and list2" << endl;
 	LinkList<int> list3 = list1;
 	list3.merge(list2);
+	list3.print();
+
+	cout << "removing duplicates now" << endl;
+	list3.removeDuplicates();
 	list3.print();
 
 	//cout << "reversed list1" << endl;
