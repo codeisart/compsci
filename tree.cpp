@@ -274,6 +274,44 @@ public:
 		for( ; i != end; i = nextNode(i))
 			std::cout << i->data << ",";
 	}
+	void printDepthR(Node* n, int depth )
+	{
+		if(!n)
+			return;
+
+		if(n->left && depth > 0)
+			printDepthR(n->left, depth-1);
+
+		if(depth == 0)
+			std::cout << n->data << ",";
+
+		if(n->right && depth > 0)
+			printDepthR(n->right, depth-1);	
+	}
+	
+	void printReverseR(Node* n)
+	{
+		if(!n)
+			return;
+
+		if(n->right)
+			printReverseR(n->right);
+
+		std::cout << n->data << ",";
+
+		if(n->left)
+			printReverseR(n->left);
+	}
+	void printReverse()
+	{
+		printReverseR(m_root);	
+	}
+
+	void printDepth(int n)
+	{
+		// print everything at depth N.
+		printDepthR(m_root,n);
+	}
 
 	int maxDepth(Node* n)
 	{
@@ -290,6 +328,24 @@ public:
 		return 1 + std::min(minDepth(n->left),minDepth(n->right));
 	}
 
+	bool isValid(Node* n)
+	{
+		if(!n)
+			return true;
+
+		bool valid = true;
+		if(n->parent && n->parent->left == n)
+			valid = n->data < n->parent->data;
+		else if(n->parent && n->parent->right == n)
+			valid = n->data > n->parent->data;
+
+		return isValid(n->left) && valid && isValid(n->right);
+	}
+
+	bool validate()
+	{
+		return isValid(m_root);
+	}
 
 	bool isBalanaced()
 	{
@@ -340,16 +396,20 @@ int main(int argc, char** argv)
 		numbers.push_back(c);
 	}
 
-	cout << "isBalanced" << tree.isBalanaced() << endl;
+	cout << "isBalanced: " << tree.isBalanaced() << endl;
+	cout << "isValid: " << tree.validate() << endl;
 	cout << " done" << endl;
+
+	//tree.printDepth(3);
+	tree.printReverse();
 	
-	tree.print();
-	for(vector<int>::const_reverse_iterator i = numbers.rbegin(); i!= numbers.rend(); ++i)
-	{
-		tree.remove(*i);
-		std::cout << std::endl;
-		tree.print();
-	}	
+	//tree.print();
+	//for(vector<int>::const_reverse_iterator i = numbers.rbegin(); i!= numbers.rend(); ++i)
+	//{
+	//	tree.remove(*i);
+	//	std::cout << std::endl;
+	//	tree.print();
+	//}	
 
 	std::cout << std::endl;
 

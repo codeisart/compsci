@@ -7,12 +7,12 @@ using namespace std;
 typedef unsigned int u32;
 
 template<int N>
-int count_bits(u32 i)
+inline int count_bits(u32 i)
 {	
 	return (((1 << N) & i) != 0) + count_bits<N-1>(i); 
 }
 template<>
-int count_bits<0>(u32 i)
+inline int count_bits<0>(u32 i)
 {	
 	return i & 1;
 }
