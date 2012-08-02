@@ -1,5 +1,27 @@
 #include <atomic>
 #include <unordered_map>
+#include <initializer_list>
+#include <vector>
+#include <algorithm>
+
+class Widget
+{
+public:
+	Widget(std::initializer_list<int> l)
+	{
+		int index = 0;
+		for(auto i: l)
+			array[++index] = i;
+	}
+	
+	Widget(int a, int b, int c) 
+		: array {a,b,c} 
+	{}
+	int getValue() const { return array[0]; }	
+	
+private:
+	int array[50];
+};
 
 template<typename T>
 class LockFreeQueue
@@ -24,18 +46,18 @@ public:
 		while(first)
 		{	
 			Node* tmp = first;
-			first = first->next;
+			first.compare_and_exchange(tmp,first()->next);
 			delete tmp;
 		}
 	}
 	void Produce(const T& t)
 	{
-		last->next = new Node(t);
-		last = last->next;				// Publish.
+		last()->next = new Node(t);
+		last.compare_and_exchange(last(),last()->next);							// Publish.
 		while(first != divider)
 		{
-			Node* tmp = first;
-			first = first->next;
+			Node* tmp = first();
+			first(first->next);
 			delete tmp;
 		}	
 	}
@@ -43,8 +65,8 @@ public:
 	{
 		if(divider != last) 
 		{											// if queue is nonempty
-			auto result = divider->next->value;		// C: copy it back
-			divider = divider->next;				// D: publish that we took it
+			auto result = divider()->next->value;	// C: copy it back
+			divider(divider->next);					// D: publish that we took it
 			return true;							// and report success
 		}
 		return false;						// else report empty	
@@ -52,26 +74,17 @@ public:
 	
 };
 
-
 int main(int argc, char** argv)
 {
-//	typedef unordered_map<
+	Widget a { 1,2,3,4,5 };
+	Widget b(3,3,3);
 
-/*
-	LockFreeQueue<int> q;
+	std::vector<int> blah;
+	for(int i = 0; i < 65536; ++i)
+		blah.push_back(i);
 
-	q.Produce(1);
-	q.Produce(1);
-	q.Produce(1);
-	q.Produce(1);
-	q.Consume(1);
-	
-	q.Consume(1);
-	q.Consume(1);
-	q.Consume(1);
-	q.Consume(1);
-	q.Consume(1);
-*/
+	std::sort(blah.begin(),blah.end(),
+		[&](const int &l, const int& r) { return l < r && l < a.getValue(); } );
 
 	return 0;
 }

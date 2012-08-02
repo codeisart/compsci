@@ -22,13 +22,21 @@ inline bool isPrime(int n, ITER begin, ITER end)
 
 Col findPrimes(int rangeStart, int rangeEnd, const Col& earlyPrimes)
 {
+	//std::cout << "start findPrimes - " << rangeStart << " " << rangeEnd << " primes_size=" << earlyPrimes.size() << std::endl;
+
 	Col newlyFound;
-	if(!rangeStart & 1)
+	if((rangeStart & 1) == 0)
 		rangeStart++;
 
 	for(int i = rangeStart; i < rangeEnd; i+=2)
+	{
 		if(isPrime(i,earlyPrimes.begin(), earlyPrimes.end()))
 			newlyFound.push_back(i);
+	//	if(i % 100)
+	//		std::cout << ".";
+	}
+
+	//std::cout << "end findPrimes" << rangeStart << " " << rangeEnd << " " << newlyFound.size() << std::endl;
 
 	return newlyFound;
 }
@@ -36,7 +44,7 @@ Col findPrimes(int rangeStart, int rangeEnd, const Col& earlyPrimes)
 int main(int argc, char** argv)
 {
 	static const size_t earlyPrimesNum = 200;
-	static const size_t primesSearchRange = 1000;
+	static const size_t primesSearchRange = 50000;
 
 	using namespace std;
 	Col earlyPrimes;
@@ -71,12 +79,27 @@ int main(int argc, char** argv)
 	Results results;
 
 	//  Stage2 dispatch multiple threads.
-	for(int i = earlyPrimesNum; i; i+= primesSearchRange)
+	int threads = toFind;			
+	int range = earlyPrimes.back() + 1;
+	for(int i = 0; i < threads; i++)
 	{
+		std::cerr << "spawning thread " << i << " for range " << range << "-" << range+primesSearchRange << std::endl;
 		results.push_back(
-			std::async([i,earlyPrimes] { return findPrimes(i,i+primesSearchRange,earlyPrimes); })
+			std::async(
+				std::launch::async,
+				[range,earlyPrimes] { return findPrimes(range,range+primesSearchRange,earlyPrimes); })
 		);
+		range += primesSearchRange;
 	}
+	for(auto &i: results)
+	{
+		const auto &j = i.get();
+		mergedResults.insert(mergedResults.end(),j.cbegin(),j.cend());	
+	}
+
+	std::sort(mergedResults.begin(), mergedResults.end());
+	for(const auto &i: mergedResults)
+		cout << i << endl;
 	
 	return 0;
 }
